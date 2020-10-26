@@ -1,0 +1,21 @@
+.node {
+  width: 25px;
+  height: 25px;
+  border: 1px solid black;
+}
+
+.node:hover {
+  cursor: pointer;
+}
+
+.start {
+  background-color:green;
+}
+
+.finish{
+  background-color: red;
+}
+
+.wall{
+  background-color: black;
+}
