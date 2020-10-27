@@ -1,20 +1,22 @@
 import React, {useState, useEffect} from 'react';
 import "./Board.css";
 import Node from "../Node/Node";
+import { dijkstra } from '../algorithms/Dijkstra';
+
 
 const Board = () => {
 
   const [grid, setGrid] = useState([]);
   const [startPoint, setStartPoint] = useState({});
   const [finishPoint, setFinishPoint] = useState({});
-  const [walls, setWalls] = useState([]);
   const [isStartButtonActive, setIsStartButtonActive]= useState(false)
   const [isFinishButtonActive, setIsFinishButtonActive] = useState(false)
   const [isWallButtonActive, setIsWallButtonActive] = useState(false);
   const [isMouseButtonDown, setIsMouseButtonDown] = useState(false);
 
   useEffect(() => {
-    createInitialGrid()
+    const initialGrid = createInitialGrid()
+    setGrid(initialGrid)
   }, [])
 
   const mouseButtonDown= () => {
@@ -55,19 +57,51 @@ const Board = () => {
     }
   }
 
+  const visualizeDijkstra = () => {
+    console.log("visualizeDijkstra")
+    const newGrid = [...grid]
+    const visitedNodesInOrder = dijkstra(newGrid, startPoint, finishPoint);
+    animateDijkstra(visitedNodesInOrder);
+  }
+
+  const animateDijkstra = (visitedNodesInOrder) => {
+    console.log("animateDijkstra")
+    for(let i = 0; i < visitedNodesInOrder.length; i++) {
+      setTimeout(() => {
+        const node = visitedNodesInOrder[i]
+        const newGrid = [...grid];
+        const newNode = {
+          ...node,
+          isVisited: true
+        };
+        newGrid[node.row][node.col] = newNode;
+        setGrid(newGrid)
+      }, 25 * i)
+    }
+  }
+
+  useEffect(() => {
+    console.log("grid", grid)
+  }, [grid])
+
+
   const createNode = (row, col) => {
+    console.log("createNode")
     const node = {
       row: row,
       col: col,
       isStart: false,
       isFinish: false,
       isWall: false,
-      distance: Infinity
+      distance: Infinity,
+      isVisited: false,
+      previousNode: null
     }
     return node
   }
 
   const createInitialGrid = () => {
+    console.log("createInitialGrid")
     const grid = [];
     for (let row = 0; row < 40; row++) {
       const rowArray = []
@@ -75,14 +109,14 @@ const Board = () => {
         rowArray.push(createNode(row, col))
       }
       grid.push(rowArray);
-      setGrid(grid);
     }
+    return grid;
   }
 
   const updateNode = (row, col) => {
+    console.log("updateNode")
     if (isStartButtonActive) {
       const newGrid = [...grid];
-
       if (startPoint.row) {
         const prevStartPoint = { ...startPoint };
         const startNode = newGrid[prevStartPoint.row][prevStartPoint.col]
@@ -91,9 +125,7 @@ const Board = () => {
           isStart: false
         }
         newGrid[prevStartPoint.row][prevStartPoint.col] = reset;
-
       }
-
       const node = newGrid[row][col];
       const newNode = {
         ...node,
@@ -102,21 +134,17 @@ const Board = () => {
       newGrid[row][col] = newNode;
       setStartPoint(newNode)
       setGrid(newGrid);
-    }
-    else if (isFinishButtonActive) {
-      const newGrid = [...grid];
-
-      if (finishPoint.row) {
-        const prevFinishPoint = { ...finishPoint };
-        const finishNode = newGrid[prevFinishPoint.row][prevFinishPoint.col]
-        const reset = {
-          ...finishNode,
-          isFinish: false
+    } else if (isFinishButtonActive) {
+        const newGrid = [...grid];
+        if (finishPoint.row) {
+          const prevFinishPoint = { ...finishPoint };
+          const finishNode = newGrid[prevFinishPoint.row][prevFinishPoint.col]
+          const reset = {
+            ...finishNode,
+            isFinish: false
+          }
+          newGrid[prevFinishPoint.row][prevFinishPoint.col] = reset;
         }
-        newGrid[prevFinishPoint.row][prevFinishPoint.col] = reset;
-
-      }
-
       const node = newGrid[row][col];
       const newNode = {
         ...node,
@@ -125,31 +153,21 @@ const Board = () => {
       newGrid[row][col] = newNode;
       setFinishPoint(newNode)
       setGrid(newGrid);
-    } else if (isWallButtonActive) {
-      const newGrid = [...grid];
 
-      const node = newGrid[row][col];
-      const newNode = {
-        ...node,
-        isWall: true
-      }
-      newGrid[row][col] = newNode;
-      setFinishPoint(newNode)
-      setGrid(newGrid);
-    }
+    } 
   }
 
   const updateWalls = (row, col) => {
+    
     if (isWallButtonActive && isMouseButtonDown) {
+      console.log("updateWalls")
       const newGrid = [...grid];
-
       const node = newGrid[row][col];
       const newNode = {
         ...node,
         isWall: true
       }
       newGrid[row][col] = newNode;
-      setFinishPoint(newNode)
       setGrid(newGrid);
     }
   }
@@ -157,6 +175,7 @@ const Board = () => {
   return (
     <div className="board__container">
       <div className="board__buttons">
+        <button onClick={visualizeDijkstra}>Show</button>
         <button onClick={handleStartButton}>Start</button>
         <button onClick={handleWallButton}>Wall</button>
         <button onClick={handleFinishButton}>Finish</button>
@@ -168,7 +187,7 @@ const Board = () => {
             return (<div key={rowIdx}>
               {
                 nodes.map((node, colIdx) => {
-                  const {col, row, isStart, isFinish, isWall} = node;
+                  const {col, row, isStart, isFinish, isWall, isVisited} = node;
                   return <Node 
                             key={colIdx} 
                             row={row} 
@@ -176,6 +195,7 @@ const Board = () => {
                             isStart={isStart}
                             isFinish={isFinish}
                             isWall={isWall}
+                            isVisited={isVisited}
                             updateNode={updateNode}
                             updateWalls={updateWalls}
                             mouseButtonDown={mouseButtonDown}
