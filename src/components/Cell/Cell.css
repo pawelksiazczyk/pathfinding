@@ -1,0 +1,110 @@
+.cell {
+  width: 25px;
+  height: 25px;
+  /* border-radius: 2px; */
+}
+
+.left__wall {
+  border-left: 2px solid gray;
+}
+
+.right__wall {
+  border-right: 2px solid gray;
+}
+
+.top__wall {
+  border-top: 2px solid gray;
+}
+
+.bottom__wall {
+  border-bottom: 2px solid gray;
+}
+
+.isVisited {
+  background-color: #33d9b2;
+  animation: show 1s forwards;
+}
+
+.isCurrent {
+  background-color: rgb(122, 122, 122) !important;
+}
+
+.maze-bottom {
+  border-bottom: 4px solid #33d9b2;
+  animation: borderBottomAnimation 1s;
+}
+
+.maze-right {
+  border-right: 4px solid #33d9b2;
+  animation: borderRightmAnimation 1s;
+}
+
+.right {
+  border-right: 2px solid gray;
+}
+
+.bottom {
+  border-bottom: 2px solid gray;
+}
+
+.gap-bottom {
+  border-bottom: none;
+}
+
+.gap-right {
+  border-right: gray;
+}
+
+@keyframes show {
+  from {
+    background-color: gray;
+  }
+
+  to {
+    background-color: #33d9b2;
+  }
+}
+
+@keyframes borderBottomAnimation {
+  0% {
+    border-bottom: 4px solid #33d9b200;
+  }
+
+  25%{
+    border-bottom: 4px solid #33d9b25b
+  }
+
+  50%{
+    border-bottom: 4px solid #33d9b28a
+  }
+
+  75%{
+    border-bottom: 4px solid #33d9b2be
+  }
+
+  100% {
+    border-bottom: 4px solid #33d9b2;
+  }
+}
+
+@keyframes borderRightAnimation {
+  0% {
+    border-bottom: 4px solid #33d9b23f;
+  }
+
+  25%{
+    border-bottom: 4px solid #33d9b25b
+  }
+
+  50%{
+    border-bottom: 4px solid #33d9b28a
+  }
+
+  75%{
+    border-bottom: 4px solid #33d9b2be
+  }
+
+  100% {
+    border-bottom: 4px solid #33d9b2;
+  }
+}

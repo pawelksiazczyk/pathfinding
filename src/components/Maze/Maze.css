@@ -1,0 +1,33 @@
+.maze__nodes {
+  display: flex;
+  border: 1px solid black;
+}
+
+.maze__container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  flex: 0.85;
+}
+
+.maze__buttons__container{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 15rem;
+}
+
+.maze__buttons{
+  font-size: 2rem;
+  border: 1px solid gray;
+  border: none;
+  color: #0c2461;
+  font-weight: bold;
+  outline: none;
+}
+
+.maze__buttons:hover {
+  cursor: pointer;
+}

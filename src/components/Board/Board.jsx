@@ -1,8 +1,11 @@
 import React, {useState, useEffect} from 'react';
 import "./Board.css";
 import Node from "../Node/Node";
-import { dijkstra } from '../algorithms/Dijkstra';
-
+import { dijkstra, getNodesInShortestPathOrder } from '../algorithms/Dijkstra';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 const Board = () => {
 
@@ -18,6 +21,7 @@ const Board = () => {
     const initialGrid = createInitialGrid()
     setGrid(initialGrid)
   }, [])
+
 
   const mouseButtonDown= () => {
     setIsMouseButtonDown(true)
@@ -61,32 +65,54 @@ const Board = () => {
     console.log("visualizeDijkstra")
     const newGrid = [...grid]
     const visitedNodesInOrder = dijkstra(newGrid, startPoint, finishPoint);
-    animateDijkstra(visitedNodesInOrder);
+    const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishPoint);
+    console.log(nodesInShortestPathOrder)
+    animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder);
   }
 
-  const animateDijkstra = (visitedNodesInOrder) => {
-    console.log("animateDijkstra")
-    for(let i = 0; i < visitedNodesInOrder.length; i++) {
+  const animateDijkstra = (visitedNodesInOrder, nodesInShortestPathOrder) => {
+    for(let i = 0; i <= visitedNodesInOrder.length; i++) {
+      if (i === visitedNodesInOrder.length && nodesInShortestPathOrder.length > 1) { 
+        setTimeout(() => {
+          animateShortestPath(nodesInShortestPathOrder)
+        }, 30 * i)
+        return;
+      } else if (i === visitedNodesInOrder.length && nodesInShortestPathOrder.length === 1){
+        setTimeout(() => {
+          console.log("BRAAAK")
+        }, 20 * i)
+        return;
+      }
       setTimeout(() => {
         const node = visitedNodesInOrder[i]
         const newGrid = [...grid];
         const newNode = {
           ...node,
-          isVisited: true
+          visited: true
         };
         newGrid[node.row][node.col] = newNode;
         setGrid(newGrid)
-      }, 25 * i)
+      }, 10 * i)
     }
   }
 
-  useEffect(() => {
-    console.log("grid", grid)
-  }, [grid])
-
+  const animateShortestPath = (nodesInShortestPathOrder) => {
+    for (let i = 0; i < nodesInShortestPathOrder.length; i++) {
+      setTimeout(() => {
+        const node = nodesInShortestPathOrder[i];
+        const newGrid = [...grid];
+        const newNode = {
+          ...node,
+          isVisited: false,
+          isPath: true
+        };
+        newGrid[node.row][node.col] = newNode;
+        setGrid(newGrid)
+      }, 25 * i);
+    }
+  }
 
   const createNode = (row, col) => {
-    console.log("createNode")
     const node = {
       row: row,
       col: col,
@@ -95,13 +121,13 @@ const Board = () => {
       isWall: false,
       distance: Infinity,
       isVisited: false,
-      previousNode: null
+      previousNode: null,
+      isPath: false
     }
     return node
   }
 
   const createInitialGrid = () => {
-    console.log("createInitialGrid")
     const grid = [];
     for (let row = 0; row < 40; row++) {
       const rowArray = []
@@ -114,7 +140,6 @@ const Board = () => {
   }
 
   const updateNode = (row, col) => {
-    console.log("updateNode")
     if (isStartButtonActive) {
       const newGrid = [...grid];
       if (startPoint.row) {
@@ -160,7 +185,6 @@ const Board = () => {
   const updateWalls = (row, col) => {
     
     if (isWallButtonActive && isMouseButtonDown) {
-      console.log("updateWalls")
       const newGrid = [...grid];
       const node = newGrid[row][col];
       const newNode = {
@@ -187,7 +211,7 @@ const Board = () => {
             return (<div key={rowIdx}>
               {
                 nodes.map((node, colIdx) => {
-                  const {col, row, isStart, isFinish, isWall, isVisited} = node;
+                  const {col, row, isStart, isFinish, isWall, isVisited, visited, isPath} = node;
                   return <Node 
                             key={colIdx} 
                             row={row} 
@@ -195,11 +219,12 @@ const Board = () => {
                             isStart={isStart}
                             isFinish={isFinish}
                             isWall={isWall}
-                            isVisited={isVisited}
+                            isVisited={visited}
                             updateNode={updateNode}
                             updateWalls={updateWalls}
                             mouseButtonDown={mouseButtonDown}
                             mouseButtonUp={mouseButtonUp}
+                            isPath={isPath}
                           />
                 })
               }
